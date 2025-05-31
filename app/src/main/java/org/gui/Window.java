@@ -5,8 +5,12 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.JTextField;
+import javax.swing.JOptionPane;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import org.gui.DrawingPanel;
@@ -26,6 +30,7 @@ public class Window extends JFrame {
     private String title;
 
     private DrawingPanel drawingPanel;
+    private JTextField thicknessField;
 
     public Window(String title)
     {
@@ -102,24 +107,61 @@ public class Window extends JFrame {
 	JLabel thicknessLabel = new JLabel("Thickness:");
 	toolPanel.add(thicknessLabel);
 
-	JSlider thicknessSlider = new JSlider(JSlider.HORIZONTAL, 1, 20, (int)drawingPanel.getCurrentThickness());
-	thicknessSlider.setMajorTickSpacing(5);
-	thicknessSlider.setMinorTickSpacing(1);
-	thicknessSlider.setPaintTicks(true);
-	thicknessSlider.setPaintLabels(true);
-	thicknessSlider.addChangeListener(new ChangeListener() {
+	thicknessField = new JTextField(String.valueOf((int)drawingPanel.getCurrentThickness()), 5);
+
+	thicknessField.addActionListener(new ActionListener() {
 	    @Override
-	    public void stateChanged(ChangeEvent e) {
-		drawingPanel.setCurrentThickness(thicknessSlider.getValue());
+	    public void actionPerformed(ActionEvent e) {
+		updateThickness();
 	    }
 	});
 
-	toolPanel.add(thicknessSlider);
+	thicknessField.addFocusListener(new FocusListener() {
+	    @Override
+	    public void focusGained(FocusEvent e) {
+		thicknessField.selectAll();
+	    }
+	    @Override
+	    public void focusLost(FocusEvent e) {
+		updateThickness();
+	    }
+	});
+
+	toolPanel.add(thicknessField);
 
 	add(toolPanel, BorderLayout.NORTH);
 
 	setVisible(true);
 	
+    }
+
+    private void updateThickness() {
+	try {
+	    String text = thicknessField.getText().trim();
+	    if(text.isEmpty()) {
+		thicknessField.setText("1");
+		drawingPanel.setCurrentThickness(1.0f);
+		return;
+	    }
+
+	    float thickness = Float.parseFloat(text);
+
+	    if(thickness < 0.1f) {
+		thickness = 0.1f;
+		thicknessField.setText("0.1");
+	    }
+	    else if(thickness > 100.0f) {
+		thickness = 100.0f;
+		thicknessField.setText("100");
+	    }
+
+	    drawingPanel.setCurrentThickness(thickness);
+	}
+	catch(NumberFormatException ex) {
+	    JOptionPane.showMessageDialog(this, "Please enter a valid number for thickness (0.1 - 100)", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+	    thicknessField.setText(String.valueOf(drawingPanel.getCurrentThickness()));
+
+	}
     }
 
 }
