@@ -1,0 +1,9 @@
+Reusing configuration cache.
+> Task :app:processTestResources NO-SOURCE
+> Task :app:processResources NO-SOURCE
+
+> Task :app:compileJava FAILED
+
+[Incubating] Problems report is available at: file:///home/chrise/programming/java_fun/drawing/build/reports/problems/problems-report.html
+1 actionable task: 1 executed
+Configuration cache entry reused.
